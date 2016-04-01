@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en" ng-app="app">
+<head>
+    <meta charset="utf-8">
+    <title>Formulaire dynamique</title>
+    <link rel="stylesheet" href="app.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular-messages.js"></script>
+    <script src="app.js"></script>
+</head>
+
+<body ng-controller="DynFormCtrl as formCtrl">
+<h1>Formulaire dynamique</h1>
+
+<form name="formCtrl.form" novalidate ng-submit="formCtrl.save()">
+        <div ng-repeat="fieldDesc in formCtrl.fields"
+             ng-switch="fieldDesc.type"
+             ng-form name="formRow"
+             class="field">
+            {{fieldDesc.label}}
+
+            <span class="error" ng-show="fieldDesc.constraints.required">*</span>
+
+            <div ng-switch-when="select">
+                <select ng-model="formCtrl.data[fieldDesc.property]"
+                ng-options="code  as label  for (code, label) in fieldDesc.list"></select>
+            </div>
+            <div ng-switch-when="checkbox">
+                <input ng-model="formCtrl.data[fieldDesc.property]"
+                       ng-true-value="'oui'"
+                       ng-false-value="'non'"
+                       type="checkbox">
+            </div>
+            <div ng-switch-default>
+              <input  ng-model="formCtrl.data[fieldDesc.property]"
+                      type="{{fieldDesc.type}}" name="inputField"
+                      ng-required="fieldDesc.constraints.required">
+
+
+                <span ng-messages="formRow.inputField.$error"
+                      ng-show="formRow.inputField.$touched"
+
+                      class="error">
+                    <span ng-message="number">Ceci n'est pas un nombre !</span>
+                    <span ng-message="email">Format d'email incorrect !</span>
+                    <span ng-message="required">Ce champ est requis.</span>
+                </span>
+
+            </div>
+
+        </div>
+    <p>
+        <input type="submit" value="Enregistrer" ng-disabled="formCtrl.form.$invalid
+        || formCtrl.form.$pristine || formCtrl.message">
+        <span class="error">{{formCtrl.message}}</span>
+    </p>
+</form>
+{{formCtrl.data}}
+<pre>{{formCtrl.fields | json}}</pre>
+
+</body>
+</html>
